@@ -1,4 +1,3 @@
-
 public class Opinion {
 	public double b;
 	public double d;
