@@ -12,4 +12,9 @@ public class Opinion {
 	public double project() {
 		return ((b + u) / (b + d + 2*u));
 	}
+	
+	@Override
+	public String toString() {
+		return "{" + b + "," + d + "," + u + "}"; 
+	}
 }
