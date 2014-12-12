@@ -23,7 +23,7 @@ public class CLI {
 		}
 	}
 	
-	public static void authenticityWalk(int[][] m, int root, Opinion[] ka, Opinion[] rt) {
+	public static void authenticityWalk(int[][] m, int root, NodeOpinion[] ka, NodeOpinion[] rt) {
 		Set<Integer> visited = new HashSet<Integer>();
 		List<Integer> queue = new ArrayList<Integer>();
 		
@@ -35,15 +35,14 @@ public class CLI {
 		KA[root][root] = new Opinion(1.0, 0.0, 0.0);
 		RT[root][root] = new Opinion(1.0, 0.0, 0.0);
 		
-		// First-hand KA and RT evidence...
-		int k = 0;
-		int i = root;
-		for (int j = 0; j < m.length; j++) {
-			if (m[i][j] == 1) {
-				KA[i][j] = ka[k];
-				RT[i][j] = rt[k];
-				k++; // advance to next child
-			}
+		// First-hand KA and RT evidence injections
+		for (int k = 0; k < ka.length; k++) {
+			NodeOpinion op = ka[k];
+			KA[op.u][op.v] = op.opinion;
+		}
+		for (int k = 0; k < rt.length; k++) {
+			NodeOpinion op = ka[k];
+			RT[op.u][op.v] = op.opinion;
 		}
 		
 //		System.out.println("KA evidence");
@@ -69,39 +68,31 @@ public class CLI {
 	
 	public static void main(String[] args) {
 		
-		// TODO: parse args
+		// TODO: parse args, if necessary
 		
 		Scanner scin = new Scanner(System.in);
 		
 		int[][] m = null;
 		int j = 0;
 		int root = 0;
-		Opinion[] ka = null;
-		Opinion[] rt = null;
+		List<NodeOpinion> kaList = new ArrayList<NodeOpinion>();
+		List<NodeOpinion> rtList = new ArrayList<NodeOpinion>();
 		
 		while (scin.hasNextLine()) {
 			String line = scin.nextLine();
 			if (line.length() > 0) {
-				if (line.startsWith("root:")) {
-					String[] split = line.split(":");
+				if (line.startsWith("root")) {
+					String[] split = line.split(" ");
 					root = Integer.parseInt(split[1].trim());
-				} else if (line.toLowerCase().startsWith("ka:")) {
-					String[] split = line.split(":")[1].split(" "); // space separated...
-					ka = new Opinion[(split.length - 1) / 3]; // tuple of 3... 
-					for (int e = 1, k = 0; e < split.length; e += 3, k++) {
-						ka[k] = new Opinion(Double.parseDouble(split[e]), 
-								Double.parseDouble(split[e+1]), 
-								Double.parseDouble(split[e+2]));
-					}
-				} else if (line.toLowerCase().startsWith("rt:")) {
-					String[] split = line.split(":")[1].split(" "); // space separated...
-					rt = new Opinion[(split.length - 1) / 3]; // tuple of 3... 
-					for (int e = 1, k = 0; e < split.length; e += 3, k++) {
-						rt[k] = new Opinion(Double.parseDouble(split[e]), 
-								Double.parseDouble(split[e+1]), 
-								Double.parseDouble(split[e+2]));
-					}
-				} else {
+				} else if (line.toLowerCase().startsWith("ka")) { // ka v1 v2 d b u
+					String[] split = line.split(" ");
+					Opinion opinion = new Opinion(split[3], split[4], split[5]);
+					kaList.add(new NodeOpinion(Integer.parseInt(split[1]), Integer.parseInt(split[2]), opinion));
+				} else if (line.toLowerCase().startsWith("rt")) {
+					String[] split = line.split(" ");
+					Opinion opinion = new Opinion(split[3], split[4], split[5]);
+					rtList.add(new NodeOpinion(Integer.parseInt(split[1]), Integer.parseInt(split[2]), opinion));
+				} else { // row of the adjacency matrix
 					String[] split = line.split(" ");
 					if (m == null) m = new int[split.length][split.length];
 					for (int i = 0; i < split.length; i++) {
@@ -113,13 +104,13 @@ public class CLI {
 		}
 		
 		// Sanity check
-		if (ka == null || rt == null) {
+		if (kaList.isEmpty() || rtList.isEmpty()) {
 			System.err.println("Invalid configuration: try again...");
 			System.exit(-1);
 		}
 		
 		// Generate the KA and RT values...
 		disp(m);
-		authenticityWalk(m, root, ka, rt);
+		authenticityWalk(m, root, (NodeOpinion[]) kaList.toArray(), (NodeOpinion[]) rtList.toArray());
 	}	
 }

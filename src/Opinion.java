@@ -9,6 +9,12 @@ public class Opinion {
 		u = unknown;
 	}
 	
+	public Opinion(String belief, String disbelief, String unknown) {
+		b = Double.parseDouble(belief);
+		d = Double.parseDouble(disbelief);
+		u = Double.parseDouble(unknown);
+	}
+	
 	public double project() {
 		return ((b + u) / (b + d + 2*u));
 	}
