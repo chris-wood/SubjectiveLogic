@@ -23,7 +23,7 @@ public class CLI {
 		}
 	}
 	
-	public static void authenticityWalk(int[][] m, int root, NodeOpinion[] ka, NodeOpinion[] rt) {
+	public static void authenticityWalk(int[][] m, int root, List<NodeOpinion> kaList, List<NodeOpinion> rtList) {
 		Set<Integer> visited = new HashSet<Integer>();
 		List<Integer> queue = new ArrayList<Integer>();
 		
@@ -32,16 +32,15 @@ public class CLI {
 		Opinion[][] RT = new Opinion[m.length][m.length];
 		
 		// Root KA and RT are \omega = {1.0, 0.0, 0.0} 
+		// The root always trusts itself with absolute certainty
 		KA[root][root] = new Opinion(1.0, 0.0, 0.0);
 		RT[root][root] = new Opinion(1.0, 0.0, 0.0);
 		
 		// First-hand KA and RT evidence injections
-		for (int k = 0; k < ka.length; k++) {
-			NodeOpinion op = ka[k];
+		for (NodeOpinion op : kaList) {
 			KA[op.u][op.v] = op.opinion;
 		}
-		for (int k = 0; k < rt.length; k++) {
-			NodeOpinion op = ka[k];
+		for (NodeOpinion op : rtList) {
 			RT[op.u][op.v] = op.opinion;
 		}
 		
@@ -92,7 +91,7 @@ public class CLI {
 					String[] split = line.split(" ");
 					Opinion opinion = new Opinion(split[3], split[4], split[5]);
 					rtList.add(new NodeOpinion(Integer.parseInt(split[1]), Integer.parseInt(split[2]), opinion));
-				} else { // row of the adjacency matrix
+				} else { // parsing a row of the adjacency matrix
 					String[] split = line.split(" ");
 					if (m == null) m = new int[split.length][split.length];
 					for (int i = 0; i < split.length; i++) {
@@ -111,6 +110,6 @@ public class CLI {
 		
 		// Generate the KA and RT values...
 		disp(m);
-		authenticityWalk(m, root, (NodeOpinion[]) kaList.toArray(), (NodeOpinion[]) rtList.toArray());
+		authenticityWalk(m, root, kaList, rtList);
 	}	
 }
