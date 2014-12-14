@@ -69,7 +69,7 @@ public class CLI {
 		
 		// TODO: parse args, if necessary
 		
-		Scanner scin = new Scanner(System.in);
+		Scanner scin = new Scanner(System.in); 
 		
 		int[][] m = null;
 		int j = 0;
